@@ -1,5 +1,6 @@
 import express, { Application, Router } from 'express';
 import bodyParser from 'body-parser';
+import authRouter from './routers/AuthRouter';
 import bankRouter from './routers/BankRouter';
 import pool from './dbconfig/dbconnector';
 import { token } from './utils/auth';
@@ -28,6 +29,7 @@ class Server {
 
   private routerConfig() {
     this.app.use('/', token, bankRouter);
+    this.app.use('/auth', token, authRouter);
   }
 
   public start = (port: number) => {

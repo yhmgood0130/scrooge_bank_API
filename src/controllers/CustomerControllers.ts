@@ -1,40 +1,13 @@
 import pool from '../dbconfig/dbconnector';
 import { hashPassword, generateJWT, comparePassword } from '../utils/auth';
-const queries = require('../dbconfig/queries');
+import { getCustomerByEmail, getCustomersById, getAccount, openNewAccount, closeAccount, withdraw, deposit } from '../dbconfig/queries';
 
 class CustomerController {
-  public async get(req, res) {
-    try {
-      const client = await pool.connect();      
-      const { rows }  = await client.query(queries.getAllCustomers());
-      const customers = rows;      
-
-      client.release();
-
-      res.send(customers);
-    } catch (error) {
-      res.status(400).send(error);
-    }
-  }
   public async getById(req, res) {
     try {
       const client = await pool.connect();
-      const id = req.params.id;  
-      const { rows }  = await client.query(queries.getCustomersById(), [id]);
-      const customers = rows;      
-  
-      client.release();
-  
-      res.send(customers);
-    } catch (error) {
-      res.status(400).send(error);
-    }
-  }
-  public async getAccount(req, res) {
-    try {
-      const client = await pool.connect();
-      const id = req.params.id;  
-      const { rows }  = await client.query(queries.getAccount(), [id]);
+      const { id } = req.params;  
+      const { rows }  = await client.query(getCustomersById, [id]);
       const customers = rows;      
   
       client.release();
@@ -45,40 +18,41 @@ class CustomerController {
     }
   }
 
-  public async login(req, res) {
+  public async getAccount(req, res) {
     try {
       const client = await pool.connect();
-      const { email, password } = req.body;
-      const { rows }  = await client.query("SELECT customer_id, email, password from customers WHERE email = $1", [email]);
-      
-      if (rows.length === 0) {
-        throw new Error('Incorrect email or password');
-      }
-      const validUser = await comparePassword(password, rows[0]);
-      const token = await generateJWT(validUser);      
-      
-      res.json({ data:token });
-    } catch (error) {            
-      res.status(400).send({ message: error.message });               
+      const { id } = req.params;
+      const { rows }  = await client.query(getAccount, [id]);
+      const customers = rows;      
+  
+      client.release();
+  
+      res.send(customers);
+    } catch (error) {
+      res.status(400).send(error);
     }
   }
 
   public async createAccount(req, res) {
     try {
       const client = await pool.connect();      
-      const  { rows }    = await client.query("SELECT * FROM customers WHERE email = $1", [req.body.email]);
+      const  { rows } = await client.query("SELECT * from customers WHERE email = $1", [req.body.email]);
       
       if (rows.length === 0) {
+        
         const body = await hashPassword(req.body);      
         const { firstName, lastName, email, password } = body;  
-        const { rows }  = await client.query("INSERT INTO customers(first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING *", [firstName, lastName, email, password]);
+        const { rows }  = await client.query(openNewAccount, [firstName, lastName, email, password]);
+        const newCustomerAccount = await client.query(getAccount, [rows[0].customer_id]);
+        rows[0].account_id = newCustomerAccount.rows[0]?.account_id;
+        
         const token = await generateJWT(rows[0]);      
     
         client.release();
     
         res.json({ data:token });
       } else {
-        res.json({error: 'Email already in use'});
+        throw new Error('Email already in use');
       }
     } catch (error) {
       res.status(400).send(error);      
@@ -89,16 +63,48 @@ class CustomerController {
     try {
       const client = await pool.connect();
       const { id } = req.params;
-      const { rows }  = await client.query(queries.closeAccount, [id]);
-      const customers = rows;      
+      const { rows }  = await client.query(closeAccount, [id]);
+      const account = rows;      
   
       client.release();
   
-      res.send(customers);
+      res.send(account);
     } catch (error) {
       res.status(400).send(error);      
     }
   }
+
+  public async transaction(req, res) {
+    try {
+      const client = await pool.connect();
+      const { account_id, transaction_amount, transaction_type } = req.body;
+      let transaction = null;
+
+      if (transaction_type === 'deposit') {
+        if (transaction_amount <= 0) 
+          throw new Error("Amount cannot be or below 0.");
+          
+        const { rows }  = await client.query(deposit, [account_id, transaction_type, transaction_amount, Date.now()]);        
+        transaction = rows;
+      } else if (transaction_type === 'withdraw') {
+        if (transaction_amount >= 0)
+          throw new Error("Amount cannot be or above 0.");
+        
+          const { rows }  = await client.query(withdraw, [account_id, transaction_type, transaction_amount, Date.now()]);
+          transaction = rows;
+
+          if (transaction.length === 0) {
+            throw new Error("Invalid withdraw. Please enter the valid amount.");
+          }
+      }
+      
+      client.release();
+
+      res.send(transaction);
+    } catch (error) {
+      res.status(400).send({ message: error.message });
+    }
+  }  
 }
 
 
