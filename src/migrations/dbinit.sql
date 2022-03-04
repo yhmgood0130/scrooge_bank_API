@@ -86,21 +86,15 @@ CREATE TRIGGER trig_copy
      FOR EACH ROW
      EXECUTE PROCEDURE function_copy();
 
-INSERT INTO customers(first_name, last_name, email, password)
-VALUES('Doe','Jane', 'jane@doe.com', 'yesman'),
-      ('Doe','John', 'john@doe.com', 'yesxyz');
+-- INSERT INTO customers(first_name, last_name, email, password)
+-- VALUES('Doe','Jane', 'jane@doe.com', '$2b$10$N.2PPCPExlE5gdQVZP899OLazjsqARgRI5v0uvjxzd.ukdCpZ2i/a'),
+--       ('Doe','John', 'john@doe.com', '$2b$10$rHyRmP0WsrTqmYl6Lf.66.eq.XlAnXJ2D4wkmbPiu2emZ1RQ4cIs.');
 	  
 INSERT INTO bank_account(customer_id)
 VALUES(null);
 
-INSERT INTO transactions(account_id,transaction_type,transaction_amount)
-VALUES (3, 'Loan', 250000),
-       (1, 'Deposit', 1000),
-       (1, 'Withdraw', -500),
-       (1, 'Withdraw', -200),
-       (1, 'Withdraw', -50),
-       (1, 'Deposit', 4000);
-
+INSERT INTO transactions(account_id,transaction_type,transaction_amount, transaction_timestamp)
+VALUES (1, 'Loan', 250000, '2022-02-02 12:05:00');
 
 
 SELECT SUM(CASE WHEN transaction_type != 'Loan' THEN transaction_amount::numeric ELSE 0::numeric END) * 0.25 +
@@ -109,6 +103,8 @@ FROM transactions
 UNION ALL
 SELECT COALESCE(SUM(loan_amount),0)
 FROM loan 
+
+--  SELECT * FROM bank_account;
 /**
 
  SELECT * FROM bank_account;

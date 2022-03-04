@@ -1,11 +1,15 @@
 import express, { Router } from 'express';
 import BankController from '../controllers/CustomerControllers';
 import LoanController from '../controllers/LoanControllers';
+import OperatorController from '../controllers/OperatorController';
 import { authorize, authorizeAccount } from '../utils/auth';
 
 const router = Router();
 const bankController = new BankController();
 const loanController = new LoanController();
+const operatorController = new OperatorController();
+
+router.get('/transactions', operatorController.getBalance);
 
 router.post('/customers', bankController.createAccount);
 router.get('/customers/:id', authorize, bankController.getById);

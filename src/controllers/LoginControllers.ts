@@ -1,7 +1,6 @@
 import pool from '../dbconfig/dbconnector';
 import { hashPassword, generateJWT, comparePassword } from '../utils/auth';
 import { getCustomerByEmail } from '../dbconfig/queries';
-const queries = require('../dbconfig/queries');
 
 class LoginController {
   public async login(req, res) {

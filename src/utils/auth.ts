@@ -29,7 +29,7 @@ const comparePassword = (password,user) => {
     throw new Error('Incorrect email or password');
   }
 }
-const authorize = (req, res, next) => {  
+const authorize = (req, res, next) => {
   if (req.user && req.params.id && req.user.customer_id == req.params.id) {
     next();
   } else {
@@ -38,11 +38,6 @@ const authorize = (req, res, next) => {
   }
 }
 const authorizeAccount = (req, res, next) => {  
-  console.log(req.user);
-  console.log(req.body);
-  console.log(req.params);
-  
-  
   if (req.user && req.params.id && 
     req.user.account_id == req.body.account_id && 
     req.user.customer_id == req.params.id) {

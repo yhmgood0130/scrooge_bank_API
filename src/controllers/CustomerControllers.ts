@@ -46,11 +46,12 @@ class CustomerController {
         const newCustomerAccount = await client.query(getAccount, [rows[0].customer_id]);
         rows[0].account_id = newCustomerAccount.rows[0]?.account_id;
         
+        
         const token = await generateJWT(rows[0]);      
     
         client.release();
     
-        res.json({ data:token });
+        res.json({ data:token, customer_id: rows[0].customer_id, account_id: rows[0].account_id });
       } else {
         throw new Error('Email already in use');
       }
