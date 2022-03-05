@@ -1,9 +1,10 @@
 DROP TABLE IF EXISTS bank_account cascade;
 DROP TABLE IF EXISTS customers cascade;
-DROP TABLE IF EXISTS logs;
 DROP TABLE IF EXISTS transactions cascade;
 DROP TABLE IF EXISTS loan cascade;
 DROP TABLE IF EXISTS loan_payment cascade;
+DROP TABLE IF EXISTS credit_card cascade;
+DROP TABLE IF EXISTS credit_card_type cascade;
 
 CREATE TABLE customers
 (
@@ -19,20 +20,11 @@ CREATE TABLE customers
 CREATE TABLE bank_account 
 (
     account_id INT GENERATED ALWAYS AS IDENTITY,
-    -- acc_name text NOT NULL,
-    -- acc_type text NOT NULL,
     customer_id int UNIQUE,
-    -- total_balance int DEFAULT 0 NOT NULL,
     PRIMARY KEY(account_id),
     CONSTRAINT fk_customer
         FOREIGN KEY(customer_id)
             REFERENCES customers(customer_id)
-);
-
-CREATE TABLE logs 
-(
-    log_id integer NOT NULL,
-    trans_id integer NOT NULL
 );
 
 CREATE TABLE transactions
@@ -69,6 +61,23 @@ CREATE TABLE loan_payment
     CONSTRAINT loan_payment_loan_id_fk FOREIGN KEY(loan_id) REFERENCES loan(loan_id)
 );
 
+CREATE TABLE credit_card_type
+(
+	credit_card_type_id int GENERATED ALWAYS AS IDENTITY,
+	card_type VARCHAR(20) NOT NULL,
+	minimum_score int NOT NULL,
+	CONSTRAINT credit_card_type_pk PRIMARY KEY(credit_card_type_id)
+);
+
+CREATE TABLE credit_card
+(
+	credit_card_id int GENERATED ALWAYS AS IDENTITY,
+	customer_id int NOT NULL,
+	credit_card_type_id INT NOT NULL,
+    CONSTRAINT credit_card_pk PRIMARY KEY(credit_card_id),
+    CONSTRAINT credit_card_customer_id_fk FOREIGN KEY(customer_id) REFERENCES customers(customer_id),
+	CONSTRAINT credit_card_type_id_fk FOREIGN KEY(credit_card_type_id) REFERENCES credit_card_type(credit_card_type_id)
+);
 CREATE OR REPLACE FUNCTION function_copy() RETURNS TRIGGER AS
 $BODY$
 BEGIN
@@ -86,44 +95,14 @@ CREATE TRIGGER trig_copy
      FOR EACH ROW
      EXECUTE PROCEDURE function_copy();
 
--- INSERT INTO customers(first_name, last_name, email, password)
--- VALUES('Doe','Jane', 'jane@doe.com', '$2b$10$N.2PPCPExlE5gdQVZP899OLazjsqARgRI5v0uvjxzd.ukdCpZ2i/a'),
---       ('Doe','John', 'john@doe.com', '$2b$10$rHyRmP0WsrTqmYl6Lf.66.eq.XlAnXJ2D4wkmbPiu2emZ1RQ4cIs.');
-	  
+
 INSERT INTO bank_account(customer_id)
 VALUES(null);
 
 INSERT INTO transactions(account_id,transaction_type,transaction_amount, transaction_timestamp)
 VALUES (1, 'Loan', 250000, '2022-02-02 12:05:00');
 
-
-SELECT SUM(CASE WHEN transaction_type != 'Loan' THEN transaction_amount::numeric ELSE 0::numeric END) * 0.25 +
-SUM(CASE WHEN transaction_type = 'Loan' THEN transaction_amount::numeric ELSE 0::numeric END) AS loan_total
-FROM transactions
-UNION ALL
-SELECT COALESCE(SUM(loan_amount),0)
-FROM loan 
-
---  SELECT * FROM bank_account;
-/**
-
- SELECT * FROM bank_account;
- 
- SELECT * FROM customers WHERE customer_id = 1;
- 
- SELECT * FROM transactions;
- 
-select *,
-
-(select SUM(transaction_amount) AS total from transactions where transaction_timestamp <= a.transaction_timestamp)
-
-from transactions AS a;
-
-
-
-SELECT SUM(transactions.transaction_amount)
-FROM ((customers
-INNER JOIN bank_account ON customers.customer_id = bank_account.customer_id)
-INNER JOIN transactions ON bank_account.account_id = transactions.account_id)
-WHERE customers.customer_id = 1;
-**/
+INSERT INTO credit_card_type (card_type, minimum_score)
+VALUES ('Express', 680),
+	   ('Platinum', 720),
+	   ('Titanium', 750);

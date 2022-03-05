@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "types": [
+      "node",
+      "express"
+    ],
     "esModuleInterop": true,
     "target": "es6",
     "moduleResolution": "node",

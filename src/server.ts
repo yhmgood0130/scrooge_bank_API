@@ -2,7 +2,7 @@ import express, { Application, Router } from 'express';
 import bodyParser from 'body-parser';
 import authRouter from './routers/AuthRouter';
 import bankRouter from './routers/BankRouter';
-import pool from './dbconfig/dbconnector';
+import pool from './db/dbconnector';
 import { token } from './utils/auth';
 
 class Server {

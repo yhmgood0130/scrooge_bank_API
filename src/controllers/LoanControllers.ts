@@ -1,26 +1,26 @@
-import pool from '../dbconfig/dbconnector';
-import { getAvailableLoan, applyLoan, loanPayment } from '../dbconfig/queries';
+import pool from '../db/dbconnector';
+import { getAvailableLoan, applyLoan, loanPayment } from '../db/queries';
 
 class LoanController {
   public async getBalance(req, res) {
     try {
       const client = await pool.connect();      
-      const { rows }  = await client.query(getAvailableLoan);
-      const total = rows[0].loan_total - rows[1].loan_total;
+      const { rows : loan_amounts }  = await client.query(getAvailableLoan);
+      const total = loan_amounts[0].loan_total - loan_amounts[1].loan_total;
 
       client.release();
 
       res.send({ availableAmount: total });
     } catch (error) {
-      res.status(400).send(error);
+      res.status(400).send({ error: error.message });
     }
   }
   public async applyLoan(req, res) {
     try {
       const client = await pool.connect();
       const { customer_id, loan_amount } = req.body;
-      const { rows }  = await client.query(getAvailableLoan);
-      const total = rows[0].loan_total - rows[1].loan_total;      
+      const { rows : loan_amounts }  = await client.query(getAvailableLoan);
+      const total = loan_amounts[0].loan_total - loan_amounts[1].loan_total;      
       
       if (loan_amount > total) {
         throw new Error("Loan Application was rejected due to exceeded amount");
@@ -32,7 +32,7 @@ class LoanController {
 
       res.send({ message: 'Congratulation! Your loan has been approved' });
     } catch (error) {
-      res.status(400).send(error.message);
+      res.status(400).send({ error: error.message });
     }
   }
 
@@ -46,7 +46,7 @@ class LoanController {
 
       res.send({ message: `Congratulation! Your payment $${payment_amount} has been processed` });
     } catch (error) {
-      res.status(400).send(error.message);
+      res.status(400).send({ error: error.message });
     }
   }
 }

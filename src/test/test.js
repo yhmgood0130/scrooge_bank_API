@@ -1,30 +1,10 @@
-// const supertest = require('supertest');
-// const should = require('should');
-
-// This agent refers to PORT where program is running.
-
-// const server = supertest.agent("http://localhost:4000");
-
-// Unit test begin
-
-// import chai from 'chai';
-// import chaiHttp from 'chai-http';
-// import server from '../server';
-
-const chai = require('chai');
 const supertest = require('supertest');
 const should = require('should');
-// const server = require('../server');
-
-const { expect } = chai;
 
 let customer_id;
 let account_id;
 
-// chai.use(chaiHttp);
-
 const server = supertest.agent("http://localhost:4000");
-
 
 describe('Customer processs', function() {
   describe('/POST /customers', function() {
@@ -73,7 +53,6 @@ describe('Customer processs', function() {
       .set('Authorization', 'bearer ' + auth.token)
       .end(function(err,res){
         should(res.status).be.eql(200);
-        console.log(auth.token);
         should(res.body).be.a.Object();
         should(res.body[0].customer_id).be.eql(customer_id);
         should(res.body[0].account_id).be.eql(account_id);
@@ -83,7 +62,7 @@ describe('Customer processs', function() {
   
     it("should deposit the money in their account", function(done) {
       server
-      .post(`/customers/${customer_id}/account`)
+      .post(`/customers/${customer_id}/account/deposit`)
       .set('Authorization', 'bearer ' + auth.token)
       .send({ account_id: account_id, transaction_amount: 400, transaction_type: 'deposit' })
       .end(function(err,res){
@@ -95,7 +74,7 @@ describe('Customer processs', function() {
 
     it("should withdraw the money in their account", function(done) {
       server
-      .post(`/customers/${customer_id}/account`)
+      .post(`/customers/${customer_id}/account/withdraw`)
       .set('Authorization', 'bearer ' + auth.token)
       .send({ account_id: account_id, transaction_amount: -400, transaction_type: 'withdraw' })
       .end(function(err,res){
@@ -105,9 +84,9 @@ describe('Customer processs', function() {
       });
     });
 
-    it("should throw an error if withdraw amount exceeds the money in their account", function(done) {
+    it("should not withdraw the money due to exceeded amount", function(done) {
       server
-      .post(`/customers/${customer_id}/account`)
+      .post(`/customers/${customer_id}/account/withdraw`)
       .set('Authorization', 'bearer ' + auth.token)
       .send({ account_id: account_id, transaction_amount: -400, transaction_type: 'withdraw' })
       .end(function(err,res){
@@ -144,7 +123,7 @@ function loginUser(auth) {
           .end(onResponse);
 
       function onResponse(err, res) {
-          auth.token = res.body.data;
+          auth.token = res.body.token;
           return done();
       }
   };
