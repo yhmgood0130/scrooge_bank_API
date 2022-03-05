@@ -29,8 +29,8 @@ Scrooge Bank API
   - For myself, I ran the script under the database named 'postgres'
 * For testing, 
   - Run the entire script dbinit.sql in pgAdmin each other before running the test.
-  - Please run 'mocha' in src folder.
-* POSTMAN collection is located in SCROOGE_BANK_API/collections (should be located all the way to the top of the list in Explorer)
+  - Please run 'mocha' in src folder. (Make sure that the server is running in the background)
+* POSTMAN collection (v2.1) is located in SCROOGE_BANK_API/collections/SFOX.postman_collection.json (should be located all the way to the top of the list in Explorer)
   - You should be able to execute 'Run Collection' in Postman as I placed API endpoints in order
 
 ## User Story
