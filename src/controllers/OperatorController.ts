@@ -9,7 +9,7 @@ class OperatorController {
 
       client.release();
 
-      res.status(200).send(transactions);
+      res.send(transactions);
     } catch (error) {
       res.status(400).send({ error: error.message });
     }

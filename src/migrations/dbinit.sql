@@ -78,22 +78,6 @@ CREATE TABLE credit_card
     CONSTRAINT credit_card_customer_id_fk FOREIGN KEY(customer_id) REFERENCES customers(customer_id),
 	CONSTRAINT credit_card_type_id_fk FOREIGN KEY(credit_card_type_id) REFERENCES credit_card_type(credit_card_type_id)
 );
-CREATE OR REPLACE FUNCTION function_copy() RETURNS TRIGGER AS
-$BODY$
-BEGIN
-    INSERT INTO
-        bank_account(customer_id)
-        VALUES(new.customer_id);
-
-           RETURN new;
-END;
-$BODY$
-language plpgsql;
-
-CREATE TRIGGER trig_copy
-     AFTER INSERT ON customers
-     FOR EACH ROW
-     EXECUTE PROCEDURE function_copy();
 
 
 INSERT INTO bank_account(customer_id)
@@ -106,3 +90,20 @@ INSERT INTO credit_card_type (card_type, minimum_score)
 VALUES ('Express', 680),
 	   ('Platinum', 720),
 	   ('Titanium', 750);
+
+-- CREATE OR REPLACE FUNCTION function_copy() RETURNS TRIGGER AS
+-- $BODY$
+-- BEGIN
+--     INSERT INTO
+--         bank_account(customer_id)
+--         VALUES(new.customer_id);
+
+--            RETURN new;
+-- END;
+-- $BODY$
+-- language plpgsql;
+
+-- CREATE TRIGGER trig_copy
+--      AFTER INSERT ON customers
+--      FOR EACH ROW
+--      EXECUTE PROCEDURE function_copy();

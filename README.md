@@ -26,7 +26,7 @@ Scrooge Bank API
 * npm start
 * Copy Script from migrations/dbinit.sql and paste & run in pgAdmin 
 (I was planning on setting up knex.js but didn't have enoguh time)
-  - For myself, I ran the script under the database named 'postgres'
+  - Please change the database name and password to match your database in src/db/dbconnector.ts
 * For testing, 
   - Run the entire script dbinit.sql in pgAdmin each other before running the test.
   - Please run 'mocha' in src folder. (Make sure that the server is running in the background)

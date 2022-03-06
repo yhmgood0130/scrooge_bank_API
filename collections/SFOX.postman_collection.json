@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "286c6678-7d11-4bc5-8fe6-2bf90e6dfff6",
+		"_postman_id": "03779d84-5da5-475d-97b5-d33657491637",
 		"name": "SFOX",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -12,10 +12,13 @@
 					"listen": "test",
 					"script": {
 						"exec": [
+							"pm.test(\"status code is 200\", function() { \r",
+							"    pm.response.to.have.status(200); \r",
+							"});\r",
+							"\r",
 							"const jsonResponse = pm.response.json();\r",
 							"pm.globals.set(\"sfox_token\", jsonResponse.token);\r",
 							"pm.globals.set(\"customerId\", jsonResponse.customer_id);\r",
-							"pm.globals.set(\"accountId\", jsonResponse.account_id);\r",
 							""
 						],
 						"type": "text/javascript"
@@ -55,6 +58,10 @@
 					"listen": "test",
 					"script": {
 						"exec": [
+							"pm.test(\"status code is 200\", function() { \r",
+							"    pm.response.to.have.status(200); \r",
+							"});\r",
+							"\r",
 							"const jsonResponse = pm.response.json();\r",
 							"pm.globals.set(\"sfox_token\", jsonResponse.token)"
 						],
@@ -63,6 +70,9 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "noauth"
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -90,7 +100,78 @@
 			"response": []
 		},
 		{
+			"name": "Open new account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status code is 200\", function() { \r",
+							"    pm.response.to.have.status(200); \r",
+							"});\r",
+							"\r",
+							"const jsonResponse = pm.response.json();\r",
+							"pm.globals.set(\"sfox_token\", jsonResponse.token);\r",
+							"pm.globals.set(\"accountId\", jsonResponse.account_id);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{sfox_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"customer_id\": {{customerId}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/customers/{{customerId}}/account",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"customers",
+						"{{customerId}}",
+						"account"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Deposit",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status code is 200\", function() { \r",
+							"    pm.response.to.have.status(200); \r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -132,6 +213,19 @@
 		},
 		{
 			"name": "Withdraw",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status code is 200\", function() { \r",
+							"    pm.response.to.have.status(200); \r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -173,6 +267,19 @@
 		},
 		{
 			"name": "Apply Loan",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status code is 200\", function() { \r",
+							"    pm.response.to.have.status(200); \r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -201,6 +308,19 @@
 		},
 		{
 			"name": "Loan Payment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status code is 200\", function() { \r",
+							"    pm.response.to.have.status(200); \r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -230,6 +350,19 @@
 		},
 		{
 			"name": "Delete Account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status code is 204\", function() { \r",
+							"    pm.response.to.have.status(204); \r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -281,6 +414,19 @@
 		},
 		{
 			"name": "GetTotalAmountForOperator",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status code is 200\", function() { \r",
+							"    pm.response.to.have.status(200); \r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -312,6 +458,19 @@
 		},
 		{
 			"name": "CreditCardApplication",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status code is 200\", function() { \r",
+							"    pm.response.to.have.status(200); \r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"auth": {
 					"type": "noauth"

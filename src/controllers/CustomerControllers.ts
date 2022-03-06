@@ -1,6 +1,6 @@
 import pool from '../db/dbconnector';
 import { hashPassword, generateJWT, comparePassword } from '../utils/auth';
-import { getCustomersById, getAccount, openNewAccount, closeAccount, withdraw, deposit } from '../db/queries';
+import { getCustomersById, getAccount, createProfile, createAccount, closeAccount, withdraw, deposit } from '../db/queries';
 
 class CustomerController {
   public async getById(req, res) {
@@ -31,7 +31,7 @@ class CustomerController {
     }
   }
 
-  public async createAccount(req, res) {
+  public async createProfile(req, res) {
     try {
       const client = await pool.connect();      
       const  { rows : customer } = await client.query("SELECT * from customers WHERE email = $1", [req.body.email]);
@@ -40,10 +40,28 @@ class CustomerController {
         
         const body = await hashPassword(req.body);      
         const { firstName, lastName, email, password } = body;  
-        const { rows : newAccount }  = await client.query(openNewAccount, [firstName, lastName, email, password]);
-        const customerAccount = await client.query(getAccount, [newAccount[0].customer_id]);
-        newAccount[0].account_id = customerAccount.rows[0]?.account_id;
+        const { rows : newAccount }  = await client.query(createProfile, [firstName, lastName, email, password]);
         
+        const token = await generateJWT(newAccount[0]);      
+    
+        client.release();
+    
+        res.json({ token, customer_id: newAccount[0].customer_id });
+      } else {
+        throw new Error('Email already in use');
+      }
+    } catch (error) {
+      res.status(400).send({ error: error.message });      
+    }
+  }
+  public async createAccount(req, res) {
+    try {
+      const client = await pool.connect();      
+      const  { rows : customer } = await client.query("SELECT * from customers WHERE email = $1", [req.body.email]);
+      
+      if (customer.length === 0) {    
+        const { customer_id } = req.body;  
+        const { rows : newAccount }  = await client.query(createAccount, [customer_id]);
         
         const token = await generateJWT(newAccount[0]);      
     
@@ -51,9 +69,10 @@ class CustomerController {
     
         res.json({ token, customer_id: newAccount[0].customer_id, account_id: newAccount[0].account_id });
       } else {
-        throw new Error('Email already in use');
+        throw new Error('Customer ID does not exists.');
       }
     } catch (error) {
+      if (error.message.includes('duplicate')) error.message = 'Current customer already has an open account.';
       res.status(400).send({ error: error.message });      
     }
   }
@@ -66,7 +85,7 @@ class CustomerController {
   
       client.release();
   
-      res.send(account);
+      res.status(204).send(account);
     } catch (error) {
       res.status(400).send({ error: error.message });      
     }

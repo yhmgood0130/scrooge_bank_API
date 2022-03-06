@@ -2,10 +2,10 @@
 const getAllCustomers: string = "SELECT * FROM customers";
 const getCustomersById: string = "SELECT * FROM customers WHERE customer_id = $1";
 const getAccount: string = "SELECT * FROM bank_account WHERE customer_id = $1";
-const createAccount : string = "INSERT INTO customers(first_name, last_name, email, password) VALUES ($1, $2, $3, $4)";
+const createProfile : string = "INSERT INTO customers(first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING *";
+const createAccount : string = "INSERT INTO bank_account(customer_id) VALUES ($1) RETURNING *";
 const closeAccount : string = "UPDATE customers SET status = 'Closed' WHERE customer_id = $1";
-const getCustomerByEmail : string = "SELECT * from customers INNER JOIN bank_account ON bank_account.customer_id = customers.customer_id WHERE email = $1";
-const openNewAccount : string = "INSERT INTO customers(first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING *";
+const getCustomerByEmail : string = "SELECT * from customers WHERE email = $1";
 const getAllTransactions: string = "SELECT SUM(transaction_amount) from transactions";
 const deposit : string = "INSERT INTO transactions(account_id,transaction_type,transaction_amount, transaction_timestamp) VALUES ($1, $2, $3, to_timestamp($4 / 1000.0)) RETURNING *";
 const withdraw : string = `INSERT INTO transactions(account_id,transaction_type,transaction_amount, transaction_timestamp) SELECT $1, $2, $3, to_timestamp($4 / 1000.0) WHERE 
@@ -25,10 +25,10 @@ export {
   getAllCustomers,
   getCustomersById,
   getAccount,
+  createProfile,
   createAccount,
   closeAccount,
   getCustomerByEmail,
-  openNewAccount,
   getAvailableLoan,
   getAllTransactions,
   deposit,

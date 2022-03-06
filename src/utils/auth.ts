@@ -33,8 +33,7 @@ const authorize = (req, res, next) => {
   if (req.user && req.params.id && req.user.customer_id == req.params.id) {
     next();
   } else {
-    res.status(401);
-    res.json({error: 'Unathorized'});
+    errorMessage(req,res);
   }
 }
 const authorizeAccount = (req, res, next) => {  
@@ -43,8 +42,7 @@ const authorizeAccount = (req, res, next) => {
     req.user.customer_id == req.params.id) {
     next();
   } else {
-    res.status(401);
-    res.json({error: 'Unathorized'});
+    errorMessage(req,res);
   }
 }
 const token = (req,res,next) => {
@@ -55,6 +53,16 @@ const token = (req,res,next) => {
     req.user = decoded;
   }
   next()
+}
+
+function errorMessage(req,res) {
+  if (!req.user) {
+    res.status(401);
+    res.json({error: 'Unauthorized'});
+  } else {
+    res.status(403);
+    res.json({error: 'Forbidden'});
+  }
 }
 
 export {
